@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "embedded",
+  "dolt_database": "garmin_watchface",
+  "project_id": "f764c1f1-3c94-45ec-a3c1-489c0b93825b"
+}
