@@ -4,7 +4,14 @@ Connect IQ watch face for the Garmin Forerunner 245 Music (`fr245m`, 240x240 rou
 
 ![screenshot](screenshot.png)
 
-Shows the next prayer (Umm al-Qura method, from the watch's last known position) with a progress arc toward it, the time in 12h format, weekday and dd/mm date, heart rate, calories, steps and battery (as text and as a bottom arc).
+What it shows:
+
+- **Next prayer** (or sunrise, the end of Fajr time), its time, a countdown, and a rim arc of progress since the previous one. Dhuhr shows as Jumuah on Fridays.
+- **Date:** weekday and dd/mm, plus the Umm al-Qura Hijri date, from an embedded month table covering 1447-1470 AH (2025-2048).
+- **Time** in 12h format; a red phone icon under AM/PM when the phone is disconnected.
+- **Heart rate, Body Battery, steps**, then calories and battery (also as the bottom rim arc).
+
+Prayer times follow api.aladhan.com: the method is picked from the watch's last known position (Umm al-Qura in KSA; Dubai, Qatar, Kuwait, Jordan, Egyptian, Turkey, Karachi, Singapore/Malaysia/Indonesia and ISNA in their regions; MWL elsewhere), Shafi Asr, and the angle-based rule at high latitudes. Regions are bounding boxes, so a town right at a border can get its neighbour's method. Tests check 21 city/date cases against aladhan to within a minute.
 
 ## Toolchain (WSL)
 

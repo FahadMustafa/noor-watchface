@@ -9,6 +9,7 @@
         <font id="Time" filename="fonts/time.fnt" antialias="true"/>
         <font id="Label" filename="fonts/label.fnt" antialias="true"/>
         <font id="Value" filename="fonts/value.fnt" antialias="true"/>
+        <font id="Small" filename="fonts/small.fnt" antialias="true"/>
         <font id="Icons" filename="fonts/icons.fnt" antialias="true"/>
     </fonts>
 </resources>
