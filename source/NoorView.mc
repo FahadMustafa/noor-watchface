@@ -28,6 +28,9 @@ const PRAYER_NAMES = ["Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha"];
 const HIJRI_MONTHS = ["Muharram", "Safar", "Rabi I", "Rabi II", "Jumada I", "Jumada II",
     "Rajab", "Sha'ban", "Ramadan", "Shawwal", "Dhul Qa'dah", "Dhul Hijjah"];
 
+// fenix 5 Plus series: no Body Battery (and no Weather module).
+const HAS_BODY_BATTERY = Toybox has :SensorHistory && SensorHistory has :getBodyBatteryHistory;
+
 const LEFT = Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER;
 const CENTER = Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER;
 
@@ -133,23 +136,29 @@ class NoorView extends WatchUi.WatchFace {
         dc.setColor(C_FAINT, Graphics.COLOR_TRANSPARENT);
         dc.drawLine(cx - 60, 149, cx + 60, 149);
 
-        // Heart rate, Body Battery, steps
+        // Heart rate, Body Battery, steps; calories take the middle on watches without Body Battery
         var act = ActivityMonitor.getInfo();
+        var kcal = fmt(act.calories);
         metric(dc, cx - 70, "H", C_HEART, fmt(heartRate()), icons, value);
-        metric(dc, cx, "B", C_BODY, fmt(bodyBattery()), icons, value);
+        if (HAS_BODY_BATTERY) {
+            metric(dc, cx, "B", C_BODY, fmt(bodyBattery()), icons, value);
+        } else {
+            metric(dc, cx, "F", C_FIRE, kcal, icons, value);
+        }
         metric(dc, cx + 70, "S", C_STEPS, fmt(act.steps), icons, value);
 
-        // Calories and battery
-        var kcal = fmt(act.calories);
+        // Calories (when not above) and battery
         var batt = System.getSystemStats().battery;
         var pct = batt.format("%d") + "%";
-        var kW = dc.getTextWidthInPixels(kcal, label);
-        var bx = cx - (18 + kW + 12 + 21 + 4 + dc.getTextWidthInPixels(pct, label)) / 2;
-        dc.setColor(C_FIRE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(bx - 2, 207, icons, "F", LEFT);
-        dc.setColor(C_DIM, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(bx + 18, 207, label, kcal, LEFT);
-        bx += 18 + kW + 12;
+        var kW = HAS_BODY_BATTERY ? dc.getTextWidthInPixels(kcal, label) + 30 : 0;
+        var bx = cx - (kW + 21 + 4 + dc.getTextWidthInPixels(pct, label)) / 2;
+        if (HAS_BODY_BATTERY) {
+            dc.setColor(C_FIRE, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(bx - 2, 207, icons, "F", LEFT);
+            dc.setColor(C_DIM, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(bx + 18, 207, label, kcal, LEFT);
+            bx += kW;
+        }
         var col = batt <= 20 ? C_ALERT : C_DIM;
         dc.setColor(col, Graphics.COLOR_TRANSPARENT);
         dc.drawRoundedRectangle(bx, 202, 19, 10, 2);
@@ -216,7 +225,7 @@ class NoorView extends WatchUi.WatchFace {
             var info = Activity.getActivityInfo();
             pos = info != null ? info.currentLocation : null;
         }
-        if (pos == null) {
+        if (pos == null && Toybox has :Weather) {
             var wx = Weather.getCurrentConditions();
             pos = wx != null ? wx.observationLocationPosition : null;
         }

@@ -1,6 +1,6 @@
 # Noor
 
-A Connect IQ watch face for the Garmin Forerunner 245 Music, built around prayer times.
+A Connect IQ watch face for Garmin watches with a 240x240 round screen, built around prayer times.
 
 ![Noor on a Forerunner 245 Music](screenshot.png)
 
@@ -9,16 +9,34 @@ A Connect IQ watch face for the Garmin Forerunner 245 Music, built around prayer
 - **Next prayer** with its time and a countdown (`in 1h 19m`). Between Fajr and sunrise it shows **Sunrise** (the end of Fajr time) in gold. Dhuhr shows as **Jumuah** on Fridays. The arc along the top rim fills from the previous prayer to the next one.
 - **Date**: weekday, `dd/mm`, and the Hijri date in the Umm al-Qura calendar.
 - **Time** in 12-hour format. A red phone icon appears under AM/PM when the phone is disconnected.
-- **Heart rate, Body Battery and steps**, then **calories** and **battery**. Battery is also drawn as the arc along the bottom rim and turns red at 20% or below.
+- **Heart rate, Body Battery and steps**, then **calories** and **battery**. Battery is also drawn as the arc along the bottom rim and turns red at 20% or below. The fēnix 5 Plus series has no Body Battery, so calories take its place.
+
+## Supported watches
+
+| Watch | File |
+|---|---|
+| Forerunner 245 Music | `noor-fr245m.prg` |
+| Forerunner 245 | `noor-fr245.prg` |
+| Forerunner 745 | `noor-fr745.prg` |
+| Forerunner 945 | `noor-fr945.prg` |
+| Forerunner 945 LTE | `noor-fr945lte.prg` |
+| fēnix 5 Plus / 5S Plus / 5X Plus | `noor-fenix5plus.prg` / `noor-fenix5splus.prg` / `noor-fenix5xplus.prg` |
+| fēnix 6S / 6S Solar / 6S Dual Power | `noor-fenix6s.prg` |
+| fēnix 6S Pro / 6S Sapphire / 6S Pro Solar | `noor-fenix6spro.prg` |
+| fēnix 7S / 7S Pro | `noor-fenix7s.prg` / `noor-fenix7spro.prg` |
+| MARQ (Gen 1) Adventurer, Athlete, Aviator, Captain, Commander, Driver, Expedition, Golfer | `noor-marqadventurer.prg`, `noor-marqathlete.prg`, ... (one per model) |
+| Descent Mk2 S | `noor-descentmk2s.prg` |
+
+The face needs Connect IQ 3.3 or later, so keep the watch firmware up to date (some fēnix 5 Plus units shipped with 3.2). Every watch above runs in the Connect IQ simulator; only the Forerunner 245 Music has been tested on a real watch.
 
 ## Install
 
-1. Download `noor.prg` from the [latest release](https://github.com/FahadMustafa/noor-watchface/releases/latest).
-2. Connect the watch over USB and copy `noor.prg` into the `GARMIN/APPS` folder.
+1. Download the file for your watch from the [latest release](https://github.com/FahadMustafa/noor-watchface/releases/latest).
+2. Connect the watch over USB and copy the file into the `GARMIN/APPS` folder.
    - Windows: the watch shows up in File Explorer as a portable device.
    - macOS: use [OpenMTP](https://openmtp.ganeshrvel.com/), because the watch uses MTP and Finder can't see it.
 3. Eject and unplug the watch. The file disappears from `GARMIN/APPS` once the watch installs it; that is expected.
-4. On the watch, hold **UP**, select **Watch Face**, scroll to **Noor**, press **START** and select **Apply**.
+4. On the watch, hold the middle-left button (**UP**, or **MENU** on fēnix and MARQ), select **Watch Face**, scroll to **Noor**, press **START** and select **Apply**.
 5. Give it a location once: go outside, start any GPS activity until GPS is ready, then discard it. Until then the top line says `No location yet`. The face also picks up the location in the weather report from your phone.
 
 To remove it, delete it from the watch-face list on the watch or use Garmin Express. The Connect IQ phone app can't remove apps that were copied over USB.
@@ -63,7 +81,7 @@ There are no settings on the watch or in the Connect IQ phone app. The phone app
 | Minute adjustments to match your mosque | `TUNE` in `source/Prayer.mc`, per method: `[fajr, sunrise, dhuhr, asr, maghrib, isha]` |
 | Method parameters | `FAJR_ANGLE`, `ISHA_ANGLE`, `ISHA_MINUTES`, `MAGHRIB_MINUTES` in `source/Prayer.mc` |
 | Fonts | regenerate the files in `resources/fonts` with `tools/mkfont.py` from any TTF |
-| Supported watches | add `<iq:product>` entries in `manifest.xml`. Only `fr245m` (240x240 round) is tested, and the layout assumes that screen. |
+| Supported watches | add `<iq:product>` entries in `manifest.xml`. The layout is drawn for a 240x240 round screen. |
 
 ## Build from source
 
@@ -86,8 +104,10 @@ openssl pkcs8 -topk8 -inform PEM -outform DER -in key.pem -out ~/.Garmin/develop
 # Simulator image (Ubuntu 22.04: the SDK needs libwebkit2gtk-4.0, which 24.04 dropped)
 docker build -t ciq-sim .
 
-tools/sim.sh test   # unit tests in the simulator
-tools/sim.sh shot   # build bin/noor.prg and write screenshot.png
+tools/sim.sh test             # unit tests in the simulator
+tools/sim.sh shot             # build bin/noor.prg and write screenshot.png
+tools/sim.sh check fr945 ...  # run each watch, print errors, save bin/check/<watch>.png
+tools/release.sh              # release build for every watch into bin/release/
 ```
 
 ## Credits

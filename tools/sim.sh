@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Build, unit-test and screenshot the face in the headless simulator container.
-# usage: tools/sim.sh test | shot [out.png]
+# usage: tools/sim.sh test | shot [out.png] | check device...
 # shot sets a Riyadh position and sample steps/calories through the simulator's dialogs
 # (xdotool clicks at fixed coordinates on a 1024x1400 Xvfb screen).
 set -euo pipefail
@@ -9,7 +9,26 @@ SDK=$(~/go/bin/connect-iq-sdk-manager-cli sdk current-path)
 SDK=${SDK%/}
 CSDK=${SDK/$HOME//home/dev}
 KEY=~/.Garmin/developer_key.der
-mode=${1:?test or shot}
+mode=${1:?test, shot or check}
+
+# check: build and run each device at the simulator's default position (Kansas, so US Central
+# time), print the console (runtime errors show up there) and save bin/check/<device>.png.
+if [ "$mode" = check ]; then
+  shift
+  mkdir -p bin/check
+  for d in "$@"; do "$SDK/bin/monkeyc" -d "$d" -f monkey.jungle -o "bin/check/$d.prg" -y "$KEY" -l 3 -w >/dev/null; done
+  docker run --rm -e TZ=CST6 -v ~/.Garmin:/home/dev/.Garmin -v "$PWD":/work ciq-sim bash -c "
+    Xvfb :1 -screen 0 1024x1400x24 >/dev/null 2>&1 & export DISPLAY=:1; sleep 2
+    '$CSDK/bin/simulator' >/tmp/sim.log 2>&1 & sleep 6
+    for d in $*; do
+      echo \"== \$d\"
+      timeout 15 '$CSDK/bin/monkeydo' bin/check/\$d.prg \$d 2>&1 | grep -v -i -e gtk -e 'not properly signed' | tail -5
+      eval \$(xdotool getwindowgeometry --shell \$(xdotool search --name 'CIQ Simulator' | head -1))
+      import -window root -crop \${WIDTH}x\${HEIGHT}+0+0 /work/bin/check/\$d.png
+    done
+  "
+  exit
+fi
 out=${2:-screenshot.png}
 
 if [ "$mode" = test ]; then
