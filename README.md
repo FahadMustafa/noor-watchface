@@ -1,6 +1,6 @@
 # garmin-watchface
 
-Custom Connect IQ watch face for a Garmin Forerunner.
+Custom Connect IQ watch face for the Garmin Forerunner 245 Music (product id `fr245m`, 240x240 round, 64 colours, API 3.3).
 
 ## Toolchain
 
